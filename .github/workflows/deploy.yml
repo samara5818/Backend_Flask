@@ -1,0 +1,38 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        cd ~/smart_cash || git clone https://github.com/<your-username>/<your-repo>.git smart_cash
+        cd smart_cash
+        git pull origin main
+
+        if [ ! -d "venv" ]; then
+          python3 -m venv venv
+        fi
+        source venv/bin/activate
+
+        pip install -r requirements.txt
+
+        pkill -f gunicorn || true
+        nohup venv/bin/gunicorn -b 0.0.0.0:5000 app:app &
+        EOF
