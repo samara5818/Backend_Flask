@@ -43,5 +43,5 @@ jobs:
 
         pkill -f gunicorn || true
         
-        nohup venv/bin/gunicorn -b 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
+        nohup venv/bin/gunicorn -b 0.0.0.0:5000 app:app &
         EOF
