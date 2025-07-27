@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy flask backend to EC2
 
 on:
   push:
@@ -22,17 +22,25 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-        cd ~/smart_cash || git clone https://github.com/<your-username>/<your-repo>.git smart_cash
+
+        if [ ! -d "~/smart_cash" ]; then
+          git clone https://github.com/<your-username>/<your-repo>.git smart_cash
+        fi
+         
         cd smart_cash
-        git pull origin main
+
+        git fetch origin main
+        git reset --hard origin/main
 
         if [ ! -d "venv" ]; then
           python3 -m venv venv
         fi
         source venv/bin/activate
-
+        
+        pip install --upgrade pip
         pip install -r requirements.txt
 
         pkill -f gunicorn || true
-        nohup venv/bin/gunicorn -b 0.0.0.0:5000 app:app &
+        
+        nohup venv/bin/gunicorn -b 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
         EOF
