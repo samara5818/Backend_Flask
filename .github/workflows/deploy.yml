@@ -22,9 +22,10 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        
 
         if [ ! -d "~/smart_cash" ]; then
-          git clone https://github.com/<your-username>/<your-repo>.git smart_cash
+          git clone https://github.com/samara5818/Backend_Flask.git
         fi
          
         cd smart_cash
