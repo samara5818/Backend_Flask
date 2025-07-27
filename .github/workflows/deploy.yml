@@ -28,7 +28,7 @@ jobs:
           git clone https://github.com/samara5818/Backend_Flask.git
         fi
          
-        cd smart_cash
+        cd Backend_Flask
 
         git fetch origin main
         git reset --hard origin/main
